@@ -1,18 +1,24 @@
 ﻿{
   "version": "1.0.0-*",
+  "title": "RabbitMqConsumers",
+   
   "buildOptions": {
-    "emitEntryPoint": true
+    "emitEntryPoint": false
   },
+  "authors": [ "william.j.davis5@gmail.com" ],
 
   "dependencies": {
-    "Microsoft.NETCore.App": {
-      "type": "platform",
-      "version": "1.0.0"
-    }
+    "RabbitMQ.Client": "4.0.0-rc-1"
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
+    "net451": {},
+    "netstandard1.5": {
+      "buildOptions": {
+        "define": [
+          "CORECLR"
+        ]
+      },
       "imports": "dnxcore50"
     }
   }
