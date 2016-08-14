@@ -1,51 +1,73 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using RabbitMqConsumers.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace RabbitMqConsumers
 {
-    /// <summary>
-    /// Extends <see cref="EventingBasicConsumer"/>. Adds messages to a <see cref="BlockingCollection{IRabbitMessage}"/> when received.
-    /// </summary>
-    public class QueueingEventConsumer : EventingBasicConsumer, IDisposable
+    public class QueueingConsumer : DefaultBasicConsumer
     {
         public BlockingCollection<IRabbitMessage> Messages { get; set; }
 
         #region cTors
-        public QueueingEventConsumer(IModel model) : base(model)
+        public QueueingConsumer(IModel model) : base(model)
         {
             Messages = new BlockingCollection<IRabbitMessage>();
-            base.Received += OnReceived;
         }
 
-        public QueueingEventConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
+        public QueueingConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
         {
             Messages = messages;
         }
         #endregion
 
-        #region Methods
-        private void OnReceived(object sender, BasicDeliverEventArgs basicDeliverEventArgs)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey,
+            IBasicProperties properties, byte[] body)
         {
-            Enqueue(new RabbitMessage((IModel) sender, basicDeliverEventArgs));
+            base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body);
+            var basicDeliverEventArgs = new BasicDeliverEventArgs
+            {
+                BasicProperties = properties,
+                Body = body,
+                ConsumerTag = consumerTag,
+                DeliveryTag = deliveryTag,
+                Exchange = exchange,
+                Redelivered = redelivered,
+                RoutingKey = routingKey
+            };
+            var message = new RabbitMessage(Model,basicDeliverEventArgs);
+            var isQueued = false;
+            try
+            {
+                isQueued = Enqueue(message);
+            }
+            catch (Exception exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (!isQueued)
+                {
+                    Model.BasicNack(deliveryTag, false, true);
+                }
+            }
+
         }
 
+        #region Methods
         public bool Enqueue(RabbitMessage rabbitMessage)
         {
             if (Messages.TryAdd(rabbitMessage)) return true;
             else return false;
         }
 
-        
+
         public bool Enqueue(RabbitMessage rabbitMessage, TimeSpan timeout)
         {
-            if (Messages.TryAdd(rabbitMessage,timeout)) return true;
+            if (Messages.TryAdd(rabbitMessage, timeout)) return true;
             else return false;
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout)
@@ -55,50 +77,11 @@ namespace RabbitMqConsumers
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout, CancellationToken cancellationToken)
         {
-            if (Messages.TryAdd(rabbitMessage,timeout,cancellationToken)) return true;
+            if (Messages.TryAdd(rabbitMessage, timeout, cancellationToken)) return true;
             else return false;
         }
-
-        public IRabbitMessage Dequeue()
-        {
-            IRabbitMessage message;
-            Messages.TryTake(out message);
-            return message;
-        }
-        public IRabbitMessage Dequeue(TimeSpan timeout)
-        {
-            IRabbitMessage message;
-            Messages.TryTake(out message,timeout);
-            return message;
-        }
-        public IRabbitMessage Dequeue(int timeout)
-        {
-            IRabbitMessage message;
-            Messages.TryTake(out message,timeout);
-            return message;
-        }
-        public IRabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
-        {
-            IRabbitMessage message;
-            Messages.TryTake(out message, timeout,cancellationToken);
-            return message;
-        }
         #endregion
-
-        #region IDisposable
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Messages.Dispose();
-            }
-        }
-#endregion
     }
+
+
 }
