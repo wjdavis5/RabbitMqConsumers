@@ -12,7 +12,7 @@ Example
 ---------
 
 
-```
+```csharp
 public class Program
     {
         private static BlockingCollection<IRabbitMessage> MessageQueue { get; set; }
