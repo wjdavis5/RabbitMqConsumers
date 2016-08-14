@@ -1,7 +1,8 @@
 ﻿{
   "version": "1.0.0-*",
   "title": "RabbitMqConsumers",
-   
+  "description": "Extra consumers for RabbitMQ. Have something to add? Submit a PR!",
+  "projectUrl": "https://github.com/wjdavis5/RabbitMqConsumers",
   "buildOptions": {
     "emitEntryPoint": false
   },
