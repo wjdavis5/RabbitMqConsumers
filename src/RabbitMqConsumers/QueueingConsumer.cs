@@ -59,27 +59,27 @@ namespace RabbitMqConsumers
             else return false;
         }
 
-        public RabbitMessage Dequeue()
+        public IRabbitMessage Dequeue()
         {
-            RabbitMessage message;
+            IRabbitMessage message;
             Messages.TryTake(out message);
             return message;
         }
-        public RabbitMessage Dequeue(TimeSpan timeout)
+        public IRabbitMessage Dequeue(TimeSpan timeout)
         {
-            RabbitMessage message;
+            IRabbitMessage message;
             Messages.TryTake(out message,timeout);
             return message;
         }
-        public RabbitMessage Dequeue(int timeout)
+        public IRabbitMessage Dequeue(int timeout)
         {
-            RabbitMessage message;
-            Messages.TryTake(out message, timeout);
+            IRabbitMessage message;
+            Messages.TryTake(out message,timeout);
             return message;
         }
-        public RabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
+        public IRabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
         {
-            RabbitMessage message;
+            IRabbitMessage message;
             Messages.TryTake(out message, timeout,cancellationToken);
             return message;
         }
