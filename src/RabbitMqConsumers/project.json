@@ -1,26 +1,34 @@
 {
-  "version": "1.0.0-*",
   "title": "RabbitMqConsumers",
   "description": "Extra consumers for RabbitMQ. Have something to add? Submit a PR!",
   "packOptions": {
     "projectUrl": "https://github.com/wjdavis5/RabbitMqConsumers",
-    "tags": ["RabbitMq","QueueingBasicConsumer","Consumers","CORECLR"]
-  } ,
+    "tags": [
+      "RabbitMq",
+      "QueueingBasicConsumer",
+      "Consumers",
+      "CORECLR"
+    ]
+  },
   "buildOptions": {
     "emitEntryPoint": false
   },
-  "authors": [ "william.j.davis5@gmail.com" ],
-
+  "authors": [
+    "william.j.davis5@gmail.com"
+  ],
   "dependencies": {
     "NETStandard.Library": "1.6.0",
     "RabbitMQ.Client": "4.0.0-rc-1"
   },
-
   "frameworks": {
     "net451": {},
     "netstandard1.6": {
       "dependencies": {},
-      "buildOptions": {"define": ["CORECLR"]},
+      "buildOptions": {
+        "define": [
+          "CORECLR"
+        ]
+      },
       "imports": "dnxcore50"
     }
   }
