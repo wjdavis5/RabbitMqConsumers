@@ -5,23 +5,37 @@ using RabbitMqConsumers.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace RabbitMqConsumers
+namespace RabbitMqConsumers.Consumers
 {
-    public class QueueingConsumer : DefaultBasicConsumer
+    /// <summary>
+    /// Extends <see cref="DefaultBasicConsumer"/>. Adds messages to a <see cref="BlockingCollection{IRabbitMessage}"/> when received.
+    /// </summary>
+    public class QueueingConsumer : DefaultBasicConsumer, IDisposable
     {
         public BlockingCollection<IRabbitMessage> Messages { get; set; }
 
         #region cTors
+        /// <summary>
+        /// Create a new <see cref="QueueingConsumer"/> 
+        /// </summary>
+        /// <param name="model">The IModel to use</param>
         public QueueingConsumer(IModel model) : base(model)
         {
             Messages = new BlockingCollection<IRabbitMessage>();
         }
 
+        /// <summary>
+        /// Create a new <see cref="QueueingConsumer"/> 
+        /// </summary>
+        /// <param name="model">The IModel to use</param>
+        /// <param name="messages">Provide your own <see cref="BlockingCollection{IRabbitMessage}"/></param>
         public QueueingConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
         {
             Messages = messages;
         }
         #endregion
+
+        #region Methods
 
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey,
             IBasicProperties properties, byte[] body)
@@ -43,11 +57,7 @@ namespace RabbitMqConsumers
             {
                 isQueued = Enqueue(message);
             }
-            catch (Exception exception)
-            {
-                throw;
-            }
-            finally
+           finally
             {
                 if (!isQueued)
                 {
@@ -57,7 +67,6 @@ namespace RabbitMqConsumers
 
         }
 
-        #region Methods
         public bool Enqueue(RabbitMessage rabbitMessage)
         {
             if (Messages.TryAdd(rabbitMessage)) return true;
@@ -79,6 +88,46 @@ namespace RabbitMqConsumers
         {
             if (Messages.TryAdd(rabbitMessage, timeout, cancellationToken)) return true;
             else return false;
+        }
+        public IRabbitMessage Dequeue()
+        {
+            IRabbitMessage message;
+            Messages.TryTake(out message);
+            return message;
+        }
+        public IRabbitMessage Dequeue(TimeSpan timeout)
+        {
+            IRabbitMessage message;
+            Messages.TryTake(out message, timeout);
+            return message;
+        }
+        public IRabbitMessage Dequeue(int timeout)
+        {
+            IRabbitMessage message;
+            Messages.TryTake(out message, timeout);
+            return message;
+        }
+        public IRabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
+        {
+            IRabbitMessage message;
+            Messages.TryTake(out message, timeout, cancellationToken);
+            return message;
+        }
+        #endregion
+
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Messages.Dispose();
+            }
         }
         #endregion
     }

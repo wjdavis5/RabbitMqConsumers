@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using RabbitMqConsumers.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace RabbitMqConsumers
+namespace RabbitMqConsumers.Consumers
 {
     /// <summary>
     /// Extends <see cref="EventingBasicConsumer"/>. Adds messages to a <see cref="BlockingCollection{IRabbitMessage}"/> when received.
@@ -18,12 +15,22 @@ namespace RabbitMqConsumers
         public BlockingCollection<IRabbitMessage> Messages { get; set; }
 
         #region cTors
+
+        /// <summary>
+        /// Create a new <see cref="QueueingEventConsumer"/> 
+        /// </summary>
+        /// <param name="model">The IModel to use</param>
         public QueueingEventConsumer(IModel model) : base(model)
         {
             Messages = new BlockingCollection<IRabbitMessage>();
             base.Received += OnReceived;
         }
 
+        /// <summary>
+        /// Create a new <see cref="QueueingEventConsumer"/> 
+        /// </summary>
+        /// <param name="model">The IModel to use</param>
+        /// <param name="messages">Provide your own <see cref="BlockingCollection{IRabbitMessage}"/></param>
         public QueueingEventConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
         {
             Messages = messages;
