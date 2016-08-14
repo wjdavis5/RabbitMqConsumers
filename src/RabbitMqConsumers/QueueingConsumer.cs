@@ -13,18 +13,18 @@ namespace RabbitMqConsumers
     /// <summary>
     /// Extends <see cref="EventingBasicConsumer"/>. Adds messages to a <see cref="BlockingCollection{IRabbitMessage}"/> when received.
     /// </summary>
-    public class QueueingConsumer : EventingBasicConsumer, IDisposable
+    public class QueueingEventConsumer : EventingBasicConsumer, IDisposable
     {
         public BlockingCollection<IRabbitMessage> Messages { get; set; }
 
         #region cTors
-        public QueueingConsumer(IModel model) : base(model)
+        public QueueingEventConsumer(IModel model) : base(model)
         {
             Messages = new BlockingCollection<IRabbitMessage>();
             base.Received += OnReceived;
         }
 
-        public QueueingConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
+        public QueueingEventConsumer(IModel model, BlockingCollection<IRabbitMessage> messages) : base(model)
         {
             Messages = messages;
         }
