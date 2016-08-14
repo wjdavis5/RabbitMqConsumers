@@ -22,7 +22,7 @@ public class Program
         public static void Main(string[] args)
         {
             MessageQueue = new BlockingCollection<IRabbitMessage>();
-            RabbitConnectionFactory = new ConnectionFactory() {Uri = "amqp://voioewrj:21-kYCYF3qsHYQR7svK5gtPodVlsvO0J@reindeer.rmq.cloudamqp.com/voioewrj" };
+            RabbitConnectionFactory = new ConnectionFactory() {Uri = "amqp://username:password@YOURSERVER/VHOST" };
             RabbitConnection = RabbitConnectionFactory.CreateConnection();
 
             var rabbitChannel = RabbitConnection.CreateModel();
