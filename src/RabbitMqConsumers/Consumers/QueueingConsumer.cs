@@ -12,6 +12,18 @@ namespace RabbitMqConsumers.Consumers
     /// </summary>
     public class QueueingConsumer : DefaultBasicConsumer, IDisposable
     {
+
+        #region
+        ///<summary>Event fired on HandleBasicConsumeOk.</summary>
+        public event EventHandler<ConsumerEventArgs> Registered;
+
+        ///<summary>Event fired on HandleModelShutdown.</summary>
+        public event EventHandler<ShutdownEventArgs> Shutdown;
+
+        ///<summary>Event fired on HandleBasicCancelOk.</summary>
+        public event EventHandler<ConsumerEventArgs> Unregistered;
+        #endregion
+
         public BlockingCollection<IRabbitMessage> Messages { get; set; }
 
         #region cTors
@@ -36,7 +48,27 @@ namespace RabbitMqConsumers.Consumers
         #endregion
 
         #region Methods
+        ///<summary>Fires the Unregistered event.</summary>
+        public override void HandleBasicCancelOk(string consumerTag)
+        {
+            base.HandleBasicCancelOk(consumerTag);
 
+            Unregistered?.Invoke(this, new ConsumerEventArgs(consumerTag));
+        }
+        ///<summary>Fires the Registered event.</summary>
+        public override void HandleBasicConsumeOk(string consumerTag)
+        {
+            base.HandleBasicConsumeOk(consumerTag);
+
+            Registered?.Invoke(this, new ConsumerEventArgs(consumerTag));
+        }
+        ///<summary>Fires the Shutdown event.</summary>
+        public override void HandleModelShutdown(object model, ShutdownEventArgs reason)
+        {
+            base.HandleModelShutdown(model, reason);
+
+            Shutdown?.Invoke(this, reason);
+        }
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey,
             IBasicProperties properties, byte[] body)
         {
