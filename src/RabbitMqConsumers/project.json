@@ -17,8 +17,8 @@
     "william.j.davis5@gmail.com"
   ],
   "dependencies": {
-    "NETStandard.Library": "1.6.0",
-    "RabbitMQ.Client": "4.0.0-rc-1"
+    "NETStandard.Library": "1.6.1",
+    "RabbitMQ.Client": "4.1.1"
   },
   "frameworks": {
     "net451": {},
