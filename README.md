@@ -25,17 +25,19 @@ public class Program
             RabbitConnectionFactory = new ConnectionFactory() {Uri = "amqp://username:password@YOURSERVER/VHOST" };
             RabbitConnection = RabbitConnectionFactory.CreateConnection();
 
-            var rabbitChannel = RabbitConnection.CreateModel();
-            rabbitChannel.QueueDeclareNoWait("ConsumerQueue", true, false, false, null);
-            rabbitChannel.ExchangeDeclareNoWait("MessageExchange", "topic", true, false, null);
-            rabbitChannel.QueueBindNoWait("ConsumerQueue", "MessageExchange", "*", null);
+            using(var rabbitChannel = RabbitConnection.CreateModel())
+			{
+				rabbitChannel.QueueDeclareNoWait("ConsumerQueue", true, false, false, null);
+				rabbitChannel.ExchangeDeclareNoWait("MessageExchange", "topic", true, false, null);
+				rabbitChannel.QueueBindNoWait("ConsumerQueue", "MessageExchange", "*", null);
 
-            var processThread = new Thread(ProcessMessages);
-            processThread.Start();
-            var producerThread = new Thread(ProduceMessages);
-            producerThread.Start();
+				var processThread = new Thread(ProcessMessages);
+				processThread.Start();
+				var producerThread = new Thread(ProduceMessages);
+				producerThread.Start();
 
-            Thread.Sleep(Timeout.Infinite);
+				Thread.Sleep(Timeout.Infinite);
+			}
         }
 
         private static void ProcessMessages()

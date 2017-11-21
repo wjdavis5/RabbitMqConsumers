@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D44C0F62-FF0F-4BBB-802E-F489EE190BDF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9A150C29-8356-4FDB-B4BD-C9F0E9EAA872}"
 	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
 		version.js = version.js
 	EndProjectSection
 EndProject
@@ -28,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B0D4F31B-05CB-4632-90F3-04183E8799B7} = {D44C0F62-FF0F-4BBB-802E-F489EE190BDF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63872698-61FA-49B3-B5E7-03BDD68D24C5}
 	EndGlobalSection
 EndGlobal
