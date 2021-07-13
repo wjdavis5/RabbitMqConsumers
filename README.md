@@ -2,7 +2,7 @@
 
 # RabbitMqConsumers
 
-Extra consumers for RabbitMQ. Have something to add? Submit a PR! Supports DOTNETCORE and NET451
+Extra consumers for RabbitMQ. Have something to add? Submit a PR!
 
 Get the Nuget:
 https://www.nuget.org/packages/RabbitMqConsumers

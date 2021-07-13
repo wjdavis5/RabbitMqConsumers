@@ -12,7 +12,7 @@ namespace RabbitMqConsumers.Consumers
     /// </summary>
     public class QueueingEventConsumer : EventingBasicConsumer, IDisposable
     {
-        public BlockingCollection<IRabbitMessage> Messages { get; set; }
+        public BlockingCollection<IRabbitMessage> Messages { get; private set; }
 
         #region cTors
 
@@ -45,49 +45,41 @@ namespace RabbitMqConsumers.Consumers
 
         public bool Enqueue(RabbitMessage rabbitMessage)
         {
-            if (Messages.TryAdd(rabbitMessage)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage);
         }
 
         
         public bool Enqueue(RabbitMessage rabbitMessage, TimeSpan timeout)
         {
-            if (Messages.TryAdd(rabbitMessage,timeout)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage,timeout);
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout)
         {
-            if (Messages.TryAdd(rabbitMessage, timeout)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage, timeout);
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout, CancellationToken cancellationToken)
         {
-            if (Messages.TryAdd(rabbitMessage,timeout,cancellationToken)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage,timeout,cancellationToken);
         }
 
         public IRabbitMessage Dequeue()
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message);
+            Messages.TryTake(out var message);
             return message;
         }
         public IRabbitMessage Dequeue(TimeSpan timeout)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message,timeout);
+            Messages.TryTake(out var message,timeout);
             return message;
         }
         public IRabbitMessage Dequeue(int timeout)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message,timeout);
+            Messages.TryTake(out var message,timeout);
             return message;
         }
         public IRabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message, timeout,cancellationToken);
+            Messages.TryTake(out var message, timeout,cancellationToken);
             return message;
         }
         #endregion
