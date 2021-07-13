@@ -24,7 +24,7 @@ namespace RabbitMqConsumers.Consumers
         public event EventHandler<ConsumerEventArgs> Unregistered;
         #endregion
 
-        public BlockingCollection<IRabbitMessage> Messages { get; set; }
+        public BlockingCollection<IRabbitMessage> Messages { get; private set; }
 
         #region cTors
         /// <summary>
@@ -53,14 +53,14 @@ namespace RabbitMqConsumers.Consumers
         {
             base.HandleBasicCancelOk(consumerTag);
 
-            Unregistered?.Invoke(this, new ConsumerEventArgs(consumerTag));
+            Unregistered?.Invoke(this, new ConsumerEventArgs(new []{ consumerTag }));
         }
         ///<summary>Fires the Registered event.</summary>
         public override void HandleBasicConsumeOk(string consumerTag)
         {
             base.HandleBasicConsumeOk(consumerTag);
 
-            Registered?.Invoke(this, new ConsumerEventArgs(consumerTag));
+            Registered?.Invoke(this, new ConsumerEventArgs(new[]{ consumerTag }));
         }
         ///<summary>Fires the Shutdown event.</summary>
         public override void HandleModelShutdown(object model, ShutdownEventArgs reason)
@@ -69,8 +69,10 @@ namespace RabbitMqConsumers.Consumers
 
             Shutdown?.Invoke(this, reason);
         }
+
+
         public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey,
-            IBasicProperties properties, byte[] body)
+            IBasicProperties properties, ReadOnlyMemory<byte> body)
         {
             base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body);
             var basicDeliverEventArgs = new BasicDeliverEventArgs
@@ -83,13 +85,13 @@ namespace RabbitMqConsumers.Consumers
                 Redelivered = redelivered,
                 RoutingKey = routingKey
             };
-            var message = new RabbitMessage(Model,basicDeliverEventArgs);
+            var message = new RabbitMessage(Model, basicDeliverEventArgs);
             var isQueued = false;
             try
             {
                 isQueued = Enqueue(message);
             }
-           finally
+            finally
             {
                 if (!isQueued)
                 {
@@ -101,48 +103,40 @@ namespace RabbitMqConsumers.Consumers
 
         public bool Enqueue(RabbitMessage rabbitMessage)
         {
-            if (Messages.TryAdd(rabbitMessage)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage);
         }
 
 
         public bool Enqueue(RabbitMessage rabbitMessage, TimeSpan timeout)
         {
-            if (Messages.TryAdd(rabbitMessage, timeout)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage, timeout);
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout)
         {
-            if (Messages.TryAdd(rabbitMessage, timeout)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage, timeout);
         }
         public bool Enqueue(RabbitMessage rabbitMessage, int timeout, CancellationToken cancellationToken)
         {
-            if (Messages.TryAdd(rabbitMessage, timeout, cancellationToken)) return true;
-            else return false;
+            return Messages.TryAdd(rabbitMessage, timeout, cancellationToken);
         }
         public IRabbitMessage Dequeue()
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message);
+            Messages.TryTake(out var message);
             return message;
         }
         public IRabbitMessage Dequeue(TimeSpan timeout)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message, timeout);
+            Messages.TryTake(out var message, timeout);
             return message;
         }
         public IRabbitMessage Dequeue(int timeout)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message, timeout);
+            Messages.TryTake(out var message, timeout);
             return message;
         }
         public IRabbitMessage Dequeue(int timeout, CancellationToken cancellationToken)
         {
-            IRabbitMessage message;
-            Messages.TryTake(out message, timeout, cancellationToken);
+            Messages.TryTake(out var message, timeout, cancellationToken);
             return message;
         }
         #endregion
